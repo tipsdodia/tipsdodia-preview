@@ -2,15 +2,15 @@ name: Atualizar Tips do Dia
 
 on:
   schedule:
-    - cron: '0 8 * * *' # Executa todos os dias às 08:00 UTC
-  workflow_dispatch:    # Permite executar manualmente
+    - cron: '0 11 * * *' # Executa todos os dias às 08:00 (horário Brasília)
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar o repositório
+      - name: Clonar repositório
         uses: actions/checkout@v3
 
       - name: Configurar Node.js
@@ -19,7 +19,7 @@ jobs:
           node-version: '16'
 
       - name: Instalar dependências
-        run: npm install axios
+        run: npm install
 
       - name: Executar o script de geração
         run: node gerar_tips.js
@@ -29,5 +29,5 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add index.html
-          git commit -m 'Atualização automática das tips do dia'
+          git commit -m 'Atualização automática das tips do dia' || echo "Sem alterações para commit"
           git push

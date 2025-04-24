@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tips do Dia</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+    <div class="container">
+        <h1>TIPS DO DIA - 23/04/2025</h1>
+
+        <div class="tip-card">
+            <h2>Libertad x São Paulo - 21h30</h2>
+            <p><strong>Aposta Segura:</strong> Mais de 1.5 gols <span class="badge green">87%</span></p>
+            <p><strong>Aposta Arriscada:</strong> São Paulo vence e ambas marcam <span class="badge red">45%</span></p>
+            <button onclick="copiarTexto('Mais de 1.5 gols | São Paulo vence e ambas marcam')">Copiar Aposta</button>
+        </div>
+
+        <div class="tip-card">
+            <h2>Estudiantes x Botafogo - 21h30</h2>
+            <p><strong>Aposta Segura:</strong> Botafogo ou empate <span class="badge green">82%</span></p>
+            <p><strong>Aposta Arriscada:</strong> Botafogo vence e over 2.5 gols <span class="badge red">43%</span></p>
+            <button onclick="copiarTexto('Botafogo ou empate | Botafogo vence e over 2.5 gols')">Copiar Aposta</button>
+        </div>
+
+        <h2>Duplas do Dia</h2>
+        <ul>
+            <li><strong>Dupla Fácil:</strong> Real Madrid vence + Mais de 1.5 gols no jogo do Atlético-MG</li>
+            <li><strong>Dupla Moderada:</strong> River Plate vence + Ambas marcam no jogo do Celta</li>
+            <li><strong>Dupla Difícil:</strong> Vitória do Bucaramanga + Resultado exato 2x1 para Del Valle</li>
+        </ul>
+    </div>
+
+    <script>
+        function copiarTexto(texto) {
+            navigator.clipboard.writeText(texto);
+            alert("Aposta copiada!");
+        }
+    </script>
+</body>
+</html>

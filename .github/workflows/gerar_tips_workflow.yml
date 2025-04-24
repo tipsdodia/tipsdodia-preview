@@ -17,9 +17,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '16'
-   
-    - name: Instalar dependências
-       run: npm install axios
 
     - name: Executar o script de geração
       run: node gerar_tips.js

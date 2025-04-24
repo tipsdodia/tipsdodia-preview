@@ -4,7 +4,7 @@ name: Atualizar Tips do Dia
 on:
   schedule:
     - cron: '0 8 * * *'  # Roda todos os dias às 08:00 UTC
-  workflow_dispatch:     # Permite rodar manualmente também
+  workflow_dispatch:    # Permite rodar manualmente também
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
         node-version: '16'
 
     - name: Instalar dependências
-      run: npm install fs path
+      run: npm install axios
 
     - name: Executar o script de geração
       run: node gerar_tips.js

@@ -40,6 +40,7 @@ axios.get(url, { headers: { Authorization: `Bearer ${apiKey}` }})
     </script></body></html>`;
 
     fs.writeFileSync("index.html", html);
+    fs.writeFileSync(".force-update", "");
     console.log("Tips geradas com sucesso!");
   })
   .catch(err => {

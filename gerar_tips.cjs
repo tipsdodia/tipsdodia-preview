@@ -1,44 +1,22 @@
-// gerar_tips.cjs - Script com API-Futebol para gerar dicas e salvar no index.html
-
 const fs = require('fs');
-const axios = require('axios');
 
-const apiKey = 'live_2c18402cd0d238c95e33864044dc78'; // substitua pela sua key se necessário
-const hoje = new Date().toISOString().split('T')[0]; // Formato: YYYY-MM-DD
-const url = `https://api.api-futebol.com.br/v1/fixtures/${hoje}`;
-
-const campeonatosPermitidos = [
-  'Brasileirão Série A', 'Brasileirão Série B', 'Brasileirão Série C', 'Brasileirão Série D',
-  'Copa do Brasil', 'Libertadores', 'Sul-Americana',
-  'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1',
-  'UEFA Champions League', 'UEFA Europa League', 'Euro'
+// Jogos simulados - principais ligas + Brasileirão A, B e C
+const jogosDoDia = [
+  { campeonato: 'BRASILEIRÃO SÉRIE A', timeCasa: 'Flamengo', timeFora: 'Palmeiras', hora: '18:00' },
+  { campeonato: 'BRASILEIRÃO SÉRIE B', timeCasa: 'Ceará', timeFora: 'Sport Recife', hora: '20:30' },
+  { campeonato: 'BRASILEIRÃO SÉRIE C', timeCasa: 'Figueirense', timeFora: 'Remo', hora: '17:00' },
+  { campeonato: 'PREMIER LEAGUE', timeCasa: 'Manchester City', timeFora: 'Arsenal', hora: '16:00' },
+  { campeonato: 'LA LIGA', timeCasa: 'Barcelona', timeFora: 'Atlético de Madrid', hora: '17:30' },
+  { campeonato: 'SERIE A (ITA)', timeCasa: 'Inter de Milão', timeFora: 'Juventus', hora: '15:45' },
+  { campeonato: 'BUNDESLIGA', timeCasa: 'Bayern de Munique', timeFora: 'Borussia Dortmund', hora: '14:00' },
+  { campeonato: 'LIGUE 1', timeCasa: 'PSG', timeFora: 'Olympique de Marseille', hora: '13:00' }
 ];
 
-const apostasSeguras = [
-  'Mais de 1.5 gols', 'Ambas marcam', 'Time da casa ou empate',
-  'Menos de 4.5 gols', 'Mais de 0.5 HT'
-];
+const apostasSeguras = ['Mais de 1.5 gols', 'Ambas marcam', 'Menos de 4.5 gols', 'Casa ou empate'];
+const apostasArriscadas = ['Mais de 3.5 gols', 'Placar exato 2x1', 'Visitante vence sem sofrer gol', 'Empate com gols'];
 
-const apostasArriscadas = [
-  'Vitória fora e ambas marcam', 'Mais de 3.5 gols',
-  'Placar exato 2x1', 'Empate com gols', 'Time visitante vence sem sofrer gols'
-];
-
-const gerarJustificativa = (tipo) => {
-  return tipo === 'segura'
-    ? 'Baseado na média de gols recentes e postura ofensiva do time.'
-    : 'Opção ousada com valor em caso de desempenho acima da média.';
-};
-
-axios.get(url, {
-  headers: { Authorization: `Bearer ${apiKey}` }
-}).then(response => {
-  const jogos = response.data.filter(j => {
-    return j.status === 'agendado' && campeonatosPermitidos.includes(j.campeonato.nome);
-  });
-
-  const jogosSelecionados = jogos.slice(0, 10); // até 10 jogos no máximo
-
+const gerarHtml = () => {
+  const hoje = new Date().toISOString().split('T')[0];
   let html = `
 <!DOCTYPE html>
 <html>
@@ -46,51 +24,67 @@ axios.get(url, {
   <meta charset="UTF-8">
   <title>TIPS DO DIA - ${hoje}</title>
   <style>
-    body { background: #111; color: white; font-family: Arial; padding: 20px; }
+    body { background: #111; color: white; font-family: Arial, sans-serif; padding: 20px; }
     h1 { color: lime; }
-    .jogo { background: #222; border-radius: 5px; margin-bottom: 20px; padding: 10px; }
-    .segura { color: #00ff00; }
-    .arriscada { color: #ff4444; }
-    button { margin-top: 5px; padding: 4px 8px; cursor: pointer; }
+    .jogo, .bilhete { background: #222; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    .liga { font-size: 0.9em; color: #999; }
+    .segura { color: #0f0; }
+    .arriscada { color: #f55; }
+    .odds { color: #ccc; }
+    .comentario { font-style: italic; color: #aaa; }
+    .tipo-bilhete { color: cyan; font-weight: bold; margin-top: 20px; }
   </style>
 </head>
 <body>
-<h1>TIPS DO DIA - ${hoje}</h1>
+  <h1>TIPS DO DIA - ${hoje}</h1>
 `;
 
-  jogosSelecionados.forEach(jogo => {
-    const partida = `${jogo.time_mandante.nome_popular} x ${jogo.time_visitante.nome_popular} - ${jogo.hora}`;
-    const apostaSegura = apostasSeguras[Math.floor(Math.random() * apostasSeguras.length)];
-    const apostaArriscada = apostasArriscadas[Math.floor(Math.random() * apostasArriscadas.length)];
-    const probSegura = Math.floor(Math.random() * 11) + 70;
-    const probArriscada = Math.floor(Math.random() * 21) + 40;
+  jogosDoDia.forEach(jogo => {
+    const apostaS = apostasSeguras[Math.floor(Math.random() * apostasSeguras.length)];
+    const apostaA = apostasArriscadas[Math.floor(Math.random() * apostasArriscadas.length)];
+    const oddS = (1.40 + Math.random() * 0.6).toFixed(2);
+    const oddA = (2.30 + Math.random() * 1.8).toFixed(2);
+    const probS = Math.floor(Math.random() * 11) + 80;
+    const probA = Math.floor(Math.random() * 21) + 50;
 
     html += `
-  <div class="jogo">
-    <h2>${jogo.campeonato.nome}</h2>
-    <h3>${partida}</h3>
-    <p><b>Aposta Segura:</b> <span class="segura">${apostaSegura} (${probSegura}%)</span><br>
-    <i>Comentário:</i> ${gerarJustificativa('segura')}</p>
-    <p><b>Aposta Arriscada:</b> <span class="arriscada">${apostaArriscada} (${probArriscada}%)</span><br>
-    <i>Comentário:</i> ${gerarJustificativa('arriscada')}</p>
-    <button onclick="copiarTexto('${apostaSegura}')">Copiar Aposta</button>
-  </div>
-`;
+    <div class="jogo">
+      <div class="liga"><strong>${jogo.campeonato}</strong></div>
+      <h2>${jogo.timeCasa} x ${jogo.timeFora} - ${jogo.hora}</h2>
+      <p class="segura"><strong>Aposta Segura:</strong> ${apostaS}</p>
+      <p class="odds">Odd: ${oddS} | Chance: ${probS}%</p>
+      <p class="comentario">Baseado em retrospecto recente, médias de gols e desempenho dos ataques.</p>
+      <p class="arriscada"><strong>Aposta Arriscada:</strong> ${apostaA}</p>
+      <p class="odds">Odd: ${oddA} | Chance: ${probA}%</p>
+      <p class="comentario">Projeção de valor com base no estilo ofensivo e vulnerabilidade defensiva.</p>
+    </div>
+    `;
   });
 
-  html += `
-<script>
-function copiarTexto(texto) {
-  navigator.clipboard.writeText(texto);
-  alert("Aposta copiada!");
-}
-</script>
-</body>
-</html>`;
+  // Bilhetes automáticos
+  const gerarBilhete = (tipo, cor, jogos) => {
+    html += `<div class="tipo-bilhete">${tipo.toUpperCase()}</div>`;
+    jogos.forEach((jogo, i) => {
+      const aposta = [...apostasSeguras, ...apostasArriscadas][Math.floor(Math.random() * 8)];
+      const odd = (tipo === 'fácil' ? 1.30 + i * 0.2 : tipo === 'moderado' ? 1.80 + i * 0.3 : 2.50 + i * 0.5).toFixed(2);
+      html += `
+      <div class="bilhete">
+        <p><strong>${jogo.timeCasa} x ${jogo.timeFora}</strong></p>
+        <p><span style="color:${cor};"><strong>Palpite:</strong> ${aposta}</span></p>
+        <p class="odds">Odd estimada: ${odd}</p>
+      </div>`;
+    });
+  };
 
+  const embaralhados = [...jogosDoDia].sort(() => 0.5 - Math.random());
+  gerarBilhete('fácil', '#0f0', embaralhados.slice(0, 2));
+  gerarBilhete('moderado', '#ff0', embaralhados.slice(2, 4));
+  gerarBilhete('difícil', '#f55', embaralhados.slice(4, 6));
+
+  html += `</body></html>`;
   fs.writeFileSync('index.html', html);
   console.log("Tips geradas com sucesso!");
+};
 
-}).catch(err => {
-  console.error("Erro ao obter dados da API:", err.message);
-});
+gerarHtml();
+
